@@ -1,43 +1,43 @@
 
 
-CREATE TABLE IF NOT EXISTS SampleSheet (
-  `Sample_ID` VARCHAR(45) NOT NULL,
-  `Lane` INT NULL,
-  `Sample_Name` VARCHAR(45) NULL,
-  `Sample_Plate` VARCHAR(45) NULL,
-  `Sample_Well` VARCHAR(45) NULL,
-  `I7_Index_ID` VARCHAR(45) NULL,
-  `index` VARCHAR(45) NULL,
-  `Sample_Project` VARCHAR(45) NULL,
-  `Description` VARCHAR(45) NULL,
-  `Run_ID` VARCHAR(45) NOT NULL ) DEFAULT CHARACTER SET = utf8;
+create table if not exists samplesheet (
+  `sample_id` varchar(45) not null,
+  `lane` int null,
+  `sample_name` varchar(45) null,
+  `sample_plate` varchar(45) null,
+  `sample_well` varchar(45) null,
+  `i7_index_id` varchar(45) null,
+  `index` varchar(45) null,
+  `sample_project` varchar(45) null,
+  `description` varchar(45) null,
+  `run_id` varchar(45) not null ) default character set = utf8;
   
-CREATE TABLE IF NOT EXISTS Runfolder (
-	dt DATETIME not null,
-  `Run_ID` VARCHAR(45) NOT NULL,  
-  PRIMARY KEY (`Run_ID`))
-DEFAULT CHARACTER SET = utf8;
+create table if not exists runfolder (
+	dt datetime not null,
+  `run_id` varchar(45) not null,  
+  primary key (`run_id`))
+default character set = utf8;
 
-CREATE TABLE IF NOT EXISTS RunInfo (
-  `Run_ID` VARCHAR(45) NOT NULL,
-  `Number` integer NULL,
-  `Flowcell` VARCHAR(45) NULL,
-  `Instrument` VARCHAR(45) NULL,
-  `Date` date NULL,
-  `LaneCount` VARCHAR(45) NULL,
-  `SurfaceCount` VARCHAR(45) NULL,
-  `Read_id` integer not NULL,
-  PRIMARY KEY (`Run_ID`))
-DEFAULT CHARACTER SET = utf8;
+create table if not exists runinfo (
+  `run_id` varchar(45) not null,
+  `number` integer null,
+  `flowcell` varchar(45) null,
+  `instrument` varchar(45) null,
+  `date` date null,
+  `lanecount` varchar(45) null,
+  `surfacecount` varchar(45) null,
+  `read_id` integer not null,
+  primary key (`run_id`))
+default character set = utf8;
 
 
-CREATE TABLE IF NOT EXISTS RunInfoRead (
-  `Read_ID` integer NOT NULL,
-  `Number` integer NULL,
-  `NumCycles` integer NULL,
-  `IsIndexedRead` VARCHAR(1) NULL,
-  PRIMARY KEY (`Read_ID`))
-DEFAULT CHARACTER SET = utf8;
+create table if not exists runinforead (
+  `read_id` integer not null,
+  `number` integer null,
+  `numcycles` integer null,
+  `isindexedread` varchar(1) null,
+  primary key (`read_id`))
+default character set = utf8;
 
 
 

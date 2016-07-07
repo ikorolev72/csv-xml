@@ -74,7 +74,7 @@ sub parse_SampleSheet {
 
 
 	my $sql;
-	my $table='SAMPLESHEET';
+	my $table='samplesheet';
 	foreach $row ( @rows ) {
 		$sql="INSERT into $table
 					( ". join(',', $Columns->{$table}  ) ." )

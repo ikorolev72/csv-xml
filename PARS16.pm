@@ -17,10 +17,10 @@ if( -d 'c:\git\tmp\csv-xml' ) {
 $Paths->{RUNFOLDER}="$Paths->{HOME}/data";
 $Paths->{LOG}="$Paths->{HOME}/log/pars16.log";
 
-$Columns->{SAMPLESHEET}=qw ( Lane Sample_ID Sample_Name Sample_Plate Sample_Well I7_Index_ID index Sample_Project Description run_id ) ;
-$Columns->{RUNFOLDER}=qw ( dt run_id ) ;
+$Columns->{samplesheet}=qw ( lane sample_id sample_name sample_plate sample_well i7_index_id index sample_project description run_id ) ;
+$Columns->{runfolder}=qw ( dt run_id ) ;
 
-$DB->{dsn}="DBI:mysql:database=unixpinc_NGS_LIMS;host=192.168.56.1;port=3306";
+$DB->{dsn}="DBI:mysql:database=unixpinc_NGS_LIMS;host=localhost;port=3306";
 $DB->{user}="root";
 $DB->{password}="igor123";
 

@@ -29,17 +29,17 @@ closedir DIR;
 my $dbh=db_connect( ) ;
 exit ( 3 ) unless( $dbh );
 
-my $stmt ="SELECT run_id from RUNFOLDER ;";
+my $stmt ="SELECT run_id from runfolder ;";
 my $sth = $dbh->prepare( $stmt );
 my $rv;
-	unless ( $rv = $sth->execute( $value ) || $rv < 0 ) {
+	unless ( $rv = $sth->execute(  ) || $rv < 0 ) {
 		w2log ( "Sql( $stmt ) Someting wrong with database  : $DBI::errstr" );
 		exit(4);
 	}
 
 	
 my $sql;
-my $table='RUNFOLDER';
+my $table='runfolder';
 while ( my $hrow=$sth->fetchrow_hashref ){
 	next if ( grep{ /^$hrow->{row_id}$/ } @ls ) ;
 	$sql="INSERT into $table
