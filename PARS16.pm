@@ -20,7 +20,7 @@ $Paths->{LOG}="$Paths->{HOME}/log/pars16.log";
 $Columns->{SAMPLESHEET}=qw ( Lane Sample_ID Sample_Name Sample_Plate Sample_Well I7_Index_ID index Sample_Project Description run_id ) ;
 $Columns->{RUNFOLDER}=qw ( dt run_id ) ;
 
-$DB->{dsn}="DBI:mysql:NGS_LIMS";
+$DB->{dsn}="DBI:mysql:database=unixpinc_NGS_LIMS;host=192.168.56.1;port=3306";
 $DB->{user}="root";
 $DB->{password}="igor123";
 
@@ -42,12 +42,6 @@ return $dbh;
 
 
 
-sub db_disconnect {
-	my $dbh=shift;
-	$dbh->disconnect;
-}
-
-
 sub get_date {
 	my $time=shift() || time();
 	my $format=shift || "%s-%.2i-%.2i %.2i:%.2i:%.2i";
@@ -66,21 +60,7 @@ sub w2log {
 }
 
 
-sub db_connect {
-	return 1;
-my $dbfile = "$Paths->{DB}/sqlite.db"; 
-my $dsn      = "dbi:SQLite:dbname=$dbfile";
-my $user     = "";
-my $password = "";
 
-my $dbh = DBI->connect($dsn, $user, $password, {
-   PrintError       => 0,
-   RaiseError       => 1,
-   AutoCommit       => 1,
-   FetchHashKeyName => 'NAME_lc',
-}) or w2log ( "Cannot connect to database : $DBI::errstr" );
-return $dbh;
-}
 
 sub db_disconnect {
 	my $dbh=shift;

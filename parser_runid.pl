@@ -45,7 +45,7 @@ while ( my $hrow=$sth->fetchrow_hashref ){
 	$sql="INSERT into $table
 					( ". join(',', $Columns->{$table}  ) ." )
 					values 
-					( ".join( ',', map{ '?' } $Columns->{$table} )." ) ;"
+					( ".join( ',', map{ '?' } $Columns->{$table} )." ) ;" ;
 	my $row;
 	push( @{$row}, $dt );
 	push( @{$row}, $hrow->{row_id} );
