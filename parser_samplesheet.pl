@@ -29,39 +29,13 @@ unless( -f $filename ) {
 	exit(2);
 }
 
-
-my @rows;
-my $csv = Text::CSV->new ( { binary => 0 } )  # should set binary attribute.
-                or die "Cannot use CSV: ".Text::CSV->error_diag ();
-
-open my $fh, "<:encoding(utf8)", $filename or die "$filename: $!";
-#open my $fh, "<", $filename or die "$filename: $!";
-my $found_data_section=0;
-while ( my $row = $csv->getline( $fh ) ) {
-		if( $row->[0]=~/^\[Data\]$/ )  {
-			$found_data_section=1 ;
-			next;
-		}
-		next unless( $found_data_section );
-		push @rows, $row;
-}
-
-$csv->eof or $csv->error_diag();
-close $fh;
-
-
 my $dbh=db_connect( ) ;
 exit ( 3 ) unless( $dbh );
 
-my $sql;
-my $table='SAMPLESHEET';
-foreach $row ( @rows ) {
-	$sql="INSERT into $table
-					( ". join(',', $Columns->{$table}  ) ." )
-					values 
-					( ".join( ',', map{ '?' } $Columns->{$table} )." ) ;"
-	push( @{$row}, $runId );
-	InsertRecord( $dbh, $sql, $row ) ;
+
+unless ( parse_SampleSheet ( $filename, $dbh ) ) { # if any errors we exit with 4 
+	db_disconnect();
+	exit(4);
 }
 
 # all ok
@@ -71,6 +45,48 @@ exit(0);
 
 
 
+sub parse_SampleSheet {
+	my $filename=shift;
+	my $dbh=shift;
+	my @rows;
+	my $csv = Text::CSV->new ( { binary => 0 } ) ;  # should set binary attribute.
+	unless( $csv ) {
+		w2log "Cannot use CSV: ".Text::CSV->error_diag ();
+		return 0;
+	}
+
+	unless( open my $fh, "<:encoding(utf8)", $filename ) {
+		w2log( "$filename: $!" );
+		return 0;
+	}
+	my $found_data_section=0;
+	while ( my $row = $csv->getline( $fh ) ) {
+		if( $row->[0]=~/^\[Data\]$/ )  {
+			$found_data_section=1 ;
+			next;
+		}
+		next unless( $found_data_section );
+		push @rows, $row;
+	}
+
+	$csv->eof or $csv->error_diag();
+	close $fh;
+
+
+	my $sql;
+	my $table='SAMPLESHEET';
+	foreach $row ( @rows ) {
+		$sql="INSERT into $table
+					( ". join(',', $Columns->{$table}  ) ." )
+					values 
+					( ".join( ',', map{ '?' } $Columns->{$table} )." ) ;"
+		push( @{$row}, $runId );
+		unless( InsertRecord( $dbh, $sql, $row ) ) {
+			return 0;
+		}
+	}
+	return 1;
+}
 
 
 
@@ -78,7 +94,7 @@ exit(0);
 
 sub show_help {
         print STDERR "
-		Parse csv files. 
+		Parse csv file SampleSheet.csv 
 		Usage: $0 --id=run_id [--fn=filename.csv] [--help]
 		where
         run_id  - run id directory

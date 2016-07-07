@@ -10,8 +10,8 @@ use Getopt::Long;
 
 
 $Paths->{HOME}='/opt/csv-xml';
-if( -d 'c:\git\csv-xml' ) { 
-	$Paths->{HOME}='c:\git\csv-xml';
+if( -d 'c:\git\tmp\csv-xml' ) { 
+	$Paths->{HOME}='c:\git\tmp\csv-xml';
 }
 
 $Paths->{RUNFOLDER}="$Paths->{HOME}/data";
@@ -67,7 +67,7 @@ sub w2log {
 
 
 sub db_connect {
-	
+	return 1;
 my $dbfile = "$Paths->{DB}/sqlite.db"; 
 my $dsn      = "dbi:SQLite:dbname=$dbfile";
 my $user     = "";
@@ -166,5 +166,17 @@ sub AppendFile {
 	print OUT $body;
 	close (OUT);
 	return 1;
+}
+
+
+sub ReadXml{
+        my $filename=shift;
+        my $xml;
+        eval {  $xml=XMLin( $filename,  ForceArray=>0 , ForceContent =>0 , KeyAttr => 1, KeepRoot => 1 ) } ;
+                if($@) {
+                        w2log ( "XML file $filename error: $@" );
+                        return( undef );
+                }
+        return $xml;
 }
 
