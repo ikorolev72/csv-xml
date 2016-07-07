@@ -36,7 +36,7 @@ unless ( parse_RunInfo ( $filename, $dbh ) ) { # if any errors we exit with 4
 }
 
 # all ok
-db_disconnect();
+db_disconnect( $dbh );
 exit(0);
 
 

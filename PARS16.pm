@@ -17,9 +17,6 @@ if( -d 'c:\git\tmp\csv-xml' ) {
 $Paths->{RUNFOLDER}="$Paths->{HOME}/data";
 $Paths->{LOG}="$Paths->{HOME}/log/pars16.log";
 
-$Columns->{samplesheet}=qw ( lane sample_id sample_name sample_plate sample_well i7_index_id index sample_project description run_id ) ;
-$Columns->{runfolder}=qw ( dt run_id ) ;
-
 $DB->{dsn}="DBI:mysql:database=unixpinc_NGS_LIMS;host=localhost;port=3306";
 $DB->{user}="root";
 $DB->{password}="igor123";
@@ -110,6 +107,9 @@ sub InsertRecord {
 	my $dbh=shift;
 	my $stmt=shift; # sql
 	my $row=shift; # data
+	#print Dumper( $row );
+	#print Dumper( $stmt );
+	#print Dumper( $Columns	);
 	my $sth = $dbh->prepare( $stmt );
 	my $rv;
 	unless ( $rv = $sth->execute( @{$row} )  || $rv < 0  ) {
