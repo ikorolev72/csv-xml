@@ -77,7 +77,7 @@ sub parse_SampleSheet {
 
 	my $sql;
 	my $table='samplesheet';
-	@Columns=qw( lane sample_id sample_name sample_plate sample_well i7_index_id rindex sample_project description run_id ) ;
+	@Columns=qw( lane sample_id sample_name sample_plate sample_well i7_index_id index0 sample_project description run_id ) ;
 	
 	shift @rows; # remove columns names 
 	$sql="INSERT into $table
@@ -87,9 +87,8 @@ sub parse_SampleSheet {
 	foreach $row ( @rows ) {
 
 		push( @{$row}, $runId );
-		print Dumper($row);
+		#print Dumper($row);
 		unless( InsertRecord( $dbh, $sql, $row ) ) {
-
 			return 0;
 		}
 	}
