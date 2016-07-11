@@ -1,4 +1,8 @@
 
+CREATE TABLE sequ (id int);  
+INSERT INTO sequ (id) VALUES (1);
+
+
 
 create table if not exists samplesheet (
   `sample_id` varchar(45) not null,
@@ -159,7 +163,38 @@ create table if not exists runparameter (
   primary key (`run_id`))
 default character set = utf8;
 
-CREATE TABLE sequ (id int);  
-INSERT INTO sequ (id) VALUES (1);
+
+create table if not exists first_base_report (
+  `surface` varchar(45) null,
+  `surface_id` integer not null,
+  `run_id` varchar(45) not null,
+  )
+default character set = utf8;
+
+create table if not exists first_base_report (
+  `run_id` varchar(45) not null,
+  `surface` varchar(45) not null,
+  `surface_id` integer not null,
+  )
+default character set = utf8;
+
+
+create table if not exists surface (
+  `surface_id` integer not null,
+  `id` integer not null,
+  `metric` varchar(45) null,
+  `lane1` float null,
+  `lane2` float null,
+  `lane3` float null,
+  `lane4` float null,
+  `lane5` float null,
+  `lane6` float null,
+  `lane7` float null,
+  `lane8` float null,
+  primary key (`id`)  
+  )
+default character set = utf8;
+
+
 
 
