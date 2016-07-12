@@ -47,7 +47,7 @@ while ( $hrow=$sth->fetchrow_hashref ){
 foreach $runId ( @ls ) {
 	
 	next if( grep{ /^$runId$/ } @RUN_IDs ) ; # save only new run_id
-	print "$id\n";
+	print "$runId\n";
 
 	unless( parse_runfolder ( $dbh, $runId ) ) {
 			$dbh->rollback();

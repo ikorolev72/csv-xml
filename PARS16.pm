@@ -659,7 +659,7 @@ $hrow{read_id}=GetNextSequence( $dbh ) ;
 }
 
 
-sub parse_First_Base_Report ( $filename, $dbh, $runId )  {
+sub parse_First_Base_Report {
 	my $filename=shift;
 	my $dbh=shift;
 	my $runId=shift;

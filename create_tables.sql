@@ -164,12 +164,7 @@ create table if not exists runparameter (
 default character set = utf8;
 
 
-create table if not exists first_base_report (
-  `surface` varchar(45) null,
-  `surface_id` integer not null,
-  `run_id` varchar(45) not null,
-  )
-default character set = utf8;
+
 
 create table if not exists first_base_report (
   `run_id` varchar(45) not null,
