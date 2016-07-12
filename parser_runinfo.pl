@@ -1,7 +1,11 @@
 #!/usr/bin/perl
 # korolev-ia [at] yandex.ru
-# version 1.0 2016.07.05
+# version 1.0 2016.07.12
 ##############################
+
+# Then the RunInfo.xml and RunParameter.xml should be parsed and all the entries as indicated in the
+# database schema should be added but I really like to include all the information from the xml files into
+# database. XMl module for parsing can be used.
 
 use PARS16;
 

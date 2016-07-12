@@ -1,3 +1,6 @@
+-- Create tables !!!!
+-- 
+
 
 CREATE TABLE sequ (id int);  
 INSERT INTO sequ (id) VALUES (1);

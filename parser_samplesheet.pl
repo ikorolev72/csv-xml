@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # korolev-ia [at] yandex.ru
-# version 1.0 2016.07.05
+# version 1.0 2016.07.12
 ##############################
 
 # The second table is the SampleSheet.csv file where the first lines until the [Data] section should be

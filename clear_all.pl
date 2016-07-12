@@ -1,5 +1,8 @@
 #!/usr/bin/perl
-# clear the tables
+
+# WARNING !!!!
+# this script clear all data in ypur tables !!!!
+# clear all tables
 
 
 use PARS16;

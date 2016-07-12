@@ -1,6 +1,6 @@
 # common variables and functions
 # korolev-ia [at] yandex.ru
-# version 1.0 2016.07.05
+# version 1.0 2016.07.12
 
 
 use DBI;
@@ -26,7 +26,7 @@ $Paths->{LOG}="$Paths->{HOME}/log/pars16.log";
 
 $DB->{dsn}="DBI:mysql:database=unixpinc_NGS_LIMS;host=localhost;port=3306";
 $DB->{user}="root";
-$DB->{password}="igor123";
+$DB->{password}="root123";
 
 
 
@@ -64,6 +64,16 @@ sub w2log {
 }
 
 
+
+sub get_filename {
+	my $fn=shift; 
+	my $filename="$Paths->{RUNFOLDER}/$runId/$fn" ;
+	unless( -f $filename ) {
+		w2log( "File $filename not exist\n" ) ;
+		return undef;
+	}
+	return $filename;
+}
 
 
 sub db_disconnect {

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # korolev-ia [at] yandex.ru
-# version 1.0 2016.07.05
+# version 1.0 2016.07.12
 ##############################
 
 # The first table should consist all the Run_IDs which are the names of the Runfolder.

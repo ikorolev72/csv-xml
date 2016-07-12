@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 # korolev-ia [at] yandex.ru
-# version 1.0 2016.07.05
+# version 1.0 2016.07.12
 ##############################
 
 # Search new folder, parse all files ( runParameters.xml, SampleSheet.csv, RunInfo.xml, First_Base_Report.htm )
-#  in it and insert data into tables.
+# in it and insert data into tables.
 
 use PARS16;
 
@@ -93,16 +93,6 @@ db_disconnect( $dbh );
 exit(0);
 
 
-
-sub get_filename {
-	my $fn=shift; 
-	my $filename="$Paths->{RUNFOLDER}/$runId/$fn" ;
-	unless( -f $filename ) {
-		w2log( "File $filename not exist\n" ) ;
-		return undef;
-	}
-	return $filename;
-}
 
 
 sub show_help {
