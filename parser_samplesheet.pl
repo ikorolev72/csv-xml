@@ -33,7 +33,7 @@ my $dbh=db_connect( ) ;
 exit ( 3 ) unless( $dbh );
 
 
-unless ( parse_SampleSheet ( $filename, $dbh ) ) { # if any errors we exit with 4 
+unless ( parse_SampleSheet ( $filename, $dbh, $runId ) ) { # if any errors we exit with 4 
 	db_disconnect( $dbh );
 	exit(4);
 }

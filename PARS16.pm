@@ -13,7 +13,8 @@ use Text::CSV;
 
 
 
-
+# mask for run_id in runfolder directory
+$globmask='^\d{6}_\w\d{5}_\d{4}_\w{10}$' ;
 
 $Paths->{HOME}='/opt/csv-xml';
 if( -d 'c:\git\tmp\csv-xml' ) { 
@@ -37,7 +38,7 @@ my $password = $DB->{password};
 my $dbh = DBI->connect($dsn, $user, $password, {
    PrintError       => 0,
    RaiseError       => 1,
-   AutoCommit       => 1,
+   AutoCommit       => 0,
    FetchHashKeyName => 'NAME_lc',
 }) or w2log( "Cannot connect to database : $DBI::errstr" );
 return $dbh;
@@ -88,24 +89,33 @@ sub GetRecord {
 
 sub GetNextSequence {
 	my $dbh=shift;
+	my $row;
 	my $table='sequ';
 	my $stmt ="update $table set id=id+1; ";
-	my $sth = $dbh->prepare( $stmt );
-	my $rv;
-	unless ( $rv = $sth->execute( ) || $rv < 0 ) {
-		message2 ( "Someting wrong with database  : $DBI::errstr" );
-		w2log ( "Sql( $stmt ) Someting wrong with database  : $DBI::errstr" );
+	my $sth;
+	my $rv ;
+eval {
+	$sth = $dbh->prepare( $stmt );
+	$rv = $sth->execute( );
+};
+	if( $@ ){
+		w2log( "Error update. Sql:$stmt . Error: $@" );
+		$dbh->rollback();
 		return 0;
 	}
+eval {
 	$stmt ="select id from $table";
 	$sth = $dbh->prepare( $stmt );
-	unless ( $rv = $sth->execute(  ) || $rv < 0 ) {
-		message2 ( "Someting wrong with database  : $DBI::errstr" );
-		w2log ( "Sql( $stmt ) Someting wrong with database  : $DBI::errstr" );
+	$rv = $sth->execute( );
+	$row=$sth->fetchrow_hashref;
+};
+	if( $@ ){
+		w2log( "Error select. Sql:$stmt . Error: $@" );
+		$dbh->rollback();
 		return 0;
 	}
-	my $row=$sth->fetchrow_hashref;
-	return ( $row->{id} );	
+$dbh->commit();
+return ( $row->{id} );	
 }
 
 
@@ -116,13 +126,17 @@ sub InsertRecord {
 	#print Dumper( $row );
 	#print Dumper( $stmt );
 	#print Dumper( $Columns	);
+eval {
 	my $sth = $dbh->prepare( $stmt );
-	my $rv;
-	unless ( $rv = $sth->execute( @{$row} )  || $rv < 0  ) {
-		w2log ( "Sql( $stmt ). Someting wrong with database  : $DBI::errstr" );
+	$sth->execute( @{$row} );
+};
+	if( $@ ){
+		w2log( "Error insert. Sql:$stmt . Error: $@" );
+		$dbh->rollback();
 		return 0;
 	}
-	return ( 1 );	
+$dbh->commit();
+return ( 1 );	
 }
 
 
@@ -176,6 +190,7 @@ sub parse_runParameters {
 	#print Dumper( $xml );
 	my $tmp_root=$xml->{'RunParameters'}->{'Setup'};
 	my %hrow;
+	my @rows;
 
 # 
 $hrow{run_id}=$runId ;
@@ -506,7 +521,8 @@ workflowtype
 sub parse_SampleSheet {
 	my $filename=shift;
 	my $dbh=shift;
-	my @rows;
+	my $runId=shift;
+	my @Rows;
 	my $csv = Text::CSV->new ( { binary => 1 } ) ;  # should set binary attribute.
 	unless( $csv ) {
 		w2log "Cannot use CSV: ".Text::CSV->error_diag ();
@@ -527,7 +543,7 @@ sub parse_SampleSheet {
 			next;
 		}
 		next unless( $found_data_section );		
-		push @rows, $row;
+		push @Rows, $row;
 	}
 	$csv->eof or $csv->error_diag();
 	close $fh;
@@ -535,18 +551,31 @@ sub parse_SampleSheet {
 
 	my $sql;
 	my $table='samplesheet';
-	@Columns=qw( lane sample_id sample_name sample_plate sample_well i7_index_id index0 sample_project description run_id ) ;
+	my @Columns=qw( run_id lane sample_id sample_name sample_plate sample_well i7_index_id index0 sample_project description  ) ;
 	
-	shift @rows; # remove columns names 
+	shift @Rows; # remove columns names 
 	$sql="INSERT into $table
 					( ". join(',', @Columns  ) ." )
 					values 
-					( ".join( ',', map{ '?' } @Columns )." ) ;";	
-	foreach $row ( @rows ) {
+					( ".join( ',', map{ '?' } @Columns )." ) ;";						
+	foreach $row ( @Rows ) {
+		my %hrow;
+$hrow{run_id}=$runId;
+$hrow{lane}=substr( $row->[0], 0, 45 ) ;
+$hrow{sample_id}=substr( $row->[1], 0, 45 ) ;
+$hrow{sample_name}=substr( $row->[2], 0, 45 ) ;
+$hrow{sample_plate}=substr( $row->[3], 0, 45 ) ;
+$hrow{sample_well}=substr( $row->[4], 0, 45 ) ;
+$hrow{i7_index_id}=substr( $row->[5], 0, 45 ) ;
+$hrow{index0}=substr( $row->[6], 0, 45 ) ;
+$hrow{sample_project}=substr( $row->[7], 0, 45 ) ;
+$hrow{description}=substr( $row->[8], 0, 45 ) ;
 
-		push( @{$row}, $runId );
-		#print Dumper($row);
-		unless( InsertRecord( $dbh, $sql, $row ) ) {
+	my @irow=();
+	foreach my $key( @Columns ) {
+			push( @irow, $hrow{$key} );
+	}
+		unless( InsertRecord( $dbh, $sql, \@irow ) ) {
 			return 0;
 		}
 	}
@@ -560,25 +589,26 @@ sub parse_RunInfo {
 	my $dbh=shift;
 	my $runId=shift;
 	my $xml=ReadXml( $filename );
-	#print Dumper( $xml );
 	#return 1;
 	my $tmp_root=$xml->{'RunInfo'}->{'Run'};
 	my %hrow;
 
+	#print Dumper( $tmp_root );
 
 
 $hrow{run_id}=$runId ;
 $hrow{flowcell}=substr( $tmp_root->{'Flowcell'}, 0, 45 ) ;
 $hrow{instrument}=substr( $tmp_root->{'Instrument'}, 0, 45 ) ;
-$hrow{lanecount}=$tmp_root->{'LaneCount'} if($tmp_root->{'LaneCount'}=~/^\d+$/ );
-$hrow{swathcount}=$tmp_root->{'SwathCount'} if($tmp_root->{'SwathCount'}=~/^\d+$/ );
-$hrow{surfacecount}=$tmp_root->{'SurfaceCount'} if($tmp_root->{'SurfaceCount'}=~/^\d+$/ );
-$hrow{tilecount}=$tmp_root->{'TileCount'} if($tmp_root->{'TileCount'}=~/^\d+$/ );
-$hrow{date0}=$tmp_root->{'Date'} if($tmp_root->{'Date'}=~/^d{6}$/ );
+$hrow{lanecount}=$tmp_root->{'FlowcellLayout'}->{'LaneCount'} if($tmp_root->{'FlowcellLayout'}->{'LaneCount'}=~/^\d+$/ );
+$hrow{swathcount}=$tmp_root->{'FlowcellLayout'}->{'SwathCount'} if($tmp_root->{'FlowcellLayout'}->{'SwathCount'}=~/^\d+$/ );
+$hrow{surfacecount}=$tmp_root->{'FlowcellLayout'}->{'SurfaceCount'} if($tmp_root->{'FlowcellLayout'}->{'SurfaceCount'}=~/^\d+$/ );
+$hrow{tilecount}=$tmp_root->{'FlowcellLayout'}->{'TileCount'} if($tmp_root->{'FlowcellLayout'}->{'TileCount'}=~/^\d+$/ );
+$hrow{date0}=$tmp_root->{'Date'} if($tmp_root->{'Date'}=~/^\d{6}$/ );
 $hrow{number0}=$tmp_root->{'Number'} if($tmp_root->{'Number'}=~/^\d+$/ );
 $hrow{read_id}=GetNextSequence( $dbh ) ;	
 
-	
+	#print Dumper( %hrow,  );
+	#return 1;	
 
 	#print Dumper( $tmp_root->{'FlowcellLayout'}->{'SwathCount'} );
 	
@@ -732,63 +762,22 @@ $hrow{id}=GetNextSequence( $dbh ) ;
 
 sub parse_runfolder {
 	my $dbh=shift;
-	my $new=shift;
-
-	my $globmask='^\d{6}_\w\d{5}_\d{4}_\w{10}$' ;
-
-	my $dir=$Paths->{RUNFOLDER};
-	my @ls;
-	unless( opendir(DIR, $dir) ) {
-		w2log( "can't opendir $dir: $!" );
-		return 0;
-	}
-		@ls=grep { /$globmask/ && -d "$dir/$_" } readdir(DIR) ;
-	closedir DIR;
-	
-# looking for new folders in RUNFOLDER
-
-	my $sql ="SELECT run_id from runfolder ;";
-	my $sth = $dbh->prepare( $sql );
-	my $rv;
-	unless ( $rv = $sth->execute(  ) || $rv < 0 ) {
-		w2log ( "Sql( $sql ) Someting wrong with database  : $DBI::errstr" );
-		return 0;
-	}
-	
-	my @RUN_IDs=();
-	my $hrow;
-	while ( $hrow=$sth->fetchrow_hashref ){
-		push( @RUN_IDs, $hrow->{run_id} ) ;
-	}
+	my $id=shift;
 
 # inser new folder name(run_id) into table 
 
 	my $table='runfolder';
 	my @Columns=qw( dt run_id );
 
-	foreach $id ( @ls ) {
+	$sql="INSERT into $table
+				( ". join(',', @Columns  ) ." )
+				values 
+				( ".join( ',', map{ '?' } @Columns )." ) ;" ;	
+	my $row;
+	push( @{$row}, get_date( ) );
+	push( @{$row}, $id );
 	
-		next if( grep{ /^$id$/ } @RUN_IDs ) ;
-		$sql="INSERT into $table
-					( ". join(',', @Columns  ) ." )
-					values 
-					( ".join( ',', map{ '?' } @Columns )." ) ;" ;	
-		my $row;
-		push( @{$row}, get_date( ) );
-		push( @{$row}, $id );
-	
-		InsertRecord( $dbh, $sql, $row ) ;
-		if( $new ) {
-			print "$id\n" ;
-		}					
-	}
-
-
-	unless( $new ) {
-		foreach( @ls ) {
-			print "$_\n";
-		}
-	}
+	return ( InsertRecord( $dbh, $sql, $row ) );
 return 1;	
 }
 
