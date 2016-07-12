@@ -23,7 +23,7 @@ foreach $table ( @tables ) {
 		$sth->execute(  );
 	};
 	if( $@ ){
-		w2log( "Error insert. Sql:$stmt . Error: $@" );
+		w2log( "Error Sql:$stmt . Error: $@" );
 		$dbh->rollback();
 	}
 	$dbh->commit();
