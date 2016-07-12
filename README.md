@@ -50,18 +50,18 @@ Installation steps:
 		
 ##  Running
 There are several scripts:
-Script or file  | Description
+|Script or file  | Description|
 ----------------|----------------------
-parser_all.pl   | main script, search new dirs in runfolder, parse all files in such dirs and insert data into database 
-parser_first_base_report.pl | script parse First_Base_Report.htm in folder ( folder defined by parameter --id=runId ) and insert data into database 
-parser_runid.pl | script search new folders in your RunFolder and insert data into database 
-parser_runinfo.pl | script parse RunInfo.xml in folder ( folder defined by parameter --id=runId ) and insert data into database 
-parser_runparameter.pl | script parse runParameters.xml in folder ( folder defined by parameter --id=runId ) and insert data into database 
-parser_samplesheet.pl | script parse SampleSheet.csv in folder ( folder defined by parameter --id=runId ) and insert data into database 
-clear_all.pl | WARNING!!! This script clear all data in your tables!!! Use for testing only!!!!
-create_tables.sql | sql you can use for make requred tables in your database
-PARS16.pm | common used variable and function for this project
-log/pars16.log | log file
+|parser_all.pl   | main script, search new dirs in runfolder, parse all files in such dirs and insert data into database |
+|parser_first_base_report.pl | script parse First_Base_Report.htm in folder ( folder defined by parameter --id=runId ) and insert data into database |
+|parser_runid.pl | script search new folders in your RunFolder and insert data into database |
+|parser_runinfo.pl | script parse RunInfo.xml in folder ( folder defined by parameter --id=runId ) and insert data into database |
+|parser_runparameter.pl | script parse runParameters.xml in folder ( folder defined by parameter --id=runId ) and insert data into database |
+|parser_samplesheet.pl | script parse SampleSheet.csv in folder ( folder defined by parameter --id=runId ) and insert data into database |
+|clear_all.pl | WARNING!!! This script clear all data in your tables!!! Use for testing only!!!!|
+|create_tables.sql | sql you can use for make requred tables in your database|
+|PARS16.pm | common used variable and function for this project|
+|log/pars16.log | log file|
 
 
 
