@@ -9,7 +9,7 @@
 # can be used.
 
 use PARS16;
-use Text::CSV;
+
 
 
 
@@ -41,59 +41,6 @@ unless ( parse_SampleSheet ( $filename, $dbh ) ) { # if any errors we exit with 
 # all ok
 db_disconnect( $dbh );
 exit(0);
-
-
-
-
-sub parse_SampleSheet {
-	my $filename=shift;
-	my $dbh=shift;
-	my @rows;
-	my $csv = Text::CSV->new ( { binary => 1 } ) ;  # should set binary attribute.
-	unless( $csv ) {
-		w2log "Cannot use CSV: ".Text::CSV->error_diag ();
-		return 0;
-	}
-
-
-	my $fh;
-	unless( open(  $fh, "<:encoding(utf8)", $filename ) ) {
-		w2log( "$filename: $!" );
-		return 0;
-	}
-	
-	my $found_data_section=0;
-	while ( my $row = $csv->getline( $fh ) ) {
-		if( $row->[0]=~/^\[Data\]$/ )  {
-			$found_data_section=1 ;
-			next;
-		}
-		next unless( $found_data_section );		
-		push @rows, $row;
-	}
-	$csv->eof or $csv->error_diag();
-	close $fh;
-
-
-	my $sql;
-	my $table='samplesheet';
-	@Columns=qw( lane sample_id sample_name sample_plate sample_well i7_index_id index0 sample_project description run_id ) ;
-	
-	shift @rows; # remove columns names 
-	$sql="INSERT into $table
-					( ". join(',', @Columns  ) ." )
-					values 
-					( ".join( ',', map{ '?' } @Columns )." ) ;";	
-	foreach $row ( @rows ) {
-
-		push( @{$row}, $runId );
-		#print Dumper($row);
-		unless( InsertRecord( $dbh, $sql, $row ) ) {
-			return 0;
-		}
-	}
-	return 1;
-}
 
 
 

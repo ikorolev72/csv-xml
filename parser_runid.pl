@@ -16,64 +16,26 @@ GetOptions (
 
 show_help() if($help);
 
-$globmask='^\d{6}_\w\d{5}_\d{4}_\w{10}$' ;
 
-my $dir=$Paths->{RUNFOLDER};
-my @ls;
-opendir(DIR, $dir) || w2log( "can't opendir $dir: $!" );
-	@ls=grep { /$globmask/ && -d "$dir/$_" } readdir(DIR) ;
-closedir DIR;
 
 
 
 my $dbh=db_connect( ) ;
 exit ( 3 ) unless( $dbh );
 
-my $sql ="SELECT run_id from runfolder ;";
-my $sth = $dbh->prepare( $sql );
-my $rv;
-unless ( $rv = $sth->execute(  ) || $rv < 0 ) {
-	w2log ( "Sql( $sql ) Someting wrong with database  : $DBI::errstr" );
+
+
+
+unless ( parse_runfolder ( $dbh, $new ) ) { # if any errors we exit with 4 
+	db_disconnect( $dbh );
 	exit(4);
 }
-	
-my @RUN_IDs=();
-my $hrow;
-while ( $hrow=$sth->fetchrow_hashref ){
-	push( @RUN_IDs, $hrow->{run_id} ) ;
-}
 
-
-my $table='runfolder';
-my @Columns=qw( dt run_id );
-
-foreach $id ( @ls ) {
-	
-	next if( grep{ /^$id$/ } @RUN_IDs ) ;
-	$sql="INSERT into $table
-					( ". join(',', @Columns  ) ." )
-					values 
-					( ".join( ',', map{ '?' } @Columns )." ) ;" ;	
-	my $row;
-	push( @{$row}, get_date( ) );
-	push( @{$row}, $id );
-	
-	InsertRecord( $dbh, $sql, $row ) ;
-	if( $new ) {
-		print "$id\n" ;
-	}					
-}
-
-
-unless( $new ) {
-	foreach( @ls ) {
-		print "$_\n";
-	}
-}
 
 # all ok
 db_disconnect( $dbh );
 exit(0);
+
 
 
 

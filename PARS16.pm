@@ -500,3 +500,300 @@ workflowtype
 	return 1;
 
 }
+
+
+
+sub parse_SampleSheet {
+	my $filename=shift;
+	my $dbh=shift;
+	my @rows;
+	my $csv = Text::CSV->new ( { binary => 1 } ) ;  # should set binary attribute.
+	unless( $csv ) {
+		w2log "Cannot use CSV: ".Text::CSV->error_diag ();
+		return 0;
+	}
+
+
+	my $fh;
+	unless( open(  $fh, "<:encoding(utf8)", $filename ) ) {
+		w2log( "$filename: $!" );
+		return 0;
+	}
+	
+	my $found_data_section=0;
+	while ( my $row = $csv->getline( $fh ) ) {
+		if( $row->[0]=~/^\[Data\]$/ )  {
+			$found_data_section=1 ;
+			next;
+		}
+		next unless( $found_data_section );		
+		push @rows, $row;
+	}
+	$csv->eof or $csv->error_diag();
+	close $fh;
+
+
+	my $sql;
+	my $table='samplesheet';
+	@Columns=qw( lane sample_id sample_name sample_plate sample_well i7_index_id index0 sample_project description run_id ) ;
+	
+	shift @rows; # remove columns names 
+	$sql="INSERT into $table
+					( ". join(',', @Columns  ) ." )
+					values 
+					( ".join( ',', map{ '?' } @Columns )." ) ;";	
+	foreach $row ( @rows ) {
+
+		push( @{$row}, $runId );
+		#print Dumper($row);
+		unless( InsertRecord( $dbh, $sql, $row ) ) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+
+
+sub parse_RunInfo {
+	my $filename=shift;
+	my $dbh=shift;
+	my $runId=shift;
+	my $xml=ReadXml( $filename );
+	#print Dumper( $xml );
+	#return 1;
+	my $tmp_root=$xml->{'RunInfo'}->{'Run'};
+	my %hrow;
+
+
+
+$hrow{run_id}=$runId ;
+$hrow{flowcell}=substr( $tmp_root->{'Flowcell'}, 0, 45 ) ;
+$hrow{instrument}=substr( $tmp_root->{'Instrument'}, 0, 45 ) ;
+$hrow{lanecount}=$tmp_root->{'LaneCount'} if($tmp_root->{'LaneCount'}=~/^\d+$/ );
+$hrow{swathcount}=$tmp_root->{'SwathCount'} if($tmp_root->{'SwathCount'}=~/^\d+$/ );
+$hrow{surfacecount}=$tmp_root->{'SurfaceCount'} if($tmp_root->{'SurfaceCount'}=~/^\d+$/ );
+$hrow{tilecount}=$tmp_root->{'TileCount'} if($tmp_root->{'TileCount'}=~/^\d+$/ );
+$hrow{date0}=$tmp_root->{'Date'} if($tmp_root->{'Date'}=~/^d{6}$/ );
+$hrow{number0}=$tmp_root->{'Number'} if($tmp_root->{'Number'}=~/^\d+$/ );
+$hrow{read_id}=GetNextSequence( $dbh ) ;	
+
+	
+
+	#print Dumper( $tmp_root->{'FlowcellLayout'}->{'SwathCount'} );
+	
+	#print Dumper( $hrow );
+	my $read_id=$hrow{read_id};
+
+	my @rows=();
+	my $table='runinfo';
+	my @Columns=qw( swathcount number0 flowcell instrument run_id date0 read_id lanecount tilecount surfacecount  ) ;
+	foreach $key( @Columns ) {
+			push( @rows, $hrow{$key} );
+	}
+	
+	my $sql="INSERT into $table
+					( ". join(',', @Columns  ) ." )
+					values 
+					( ".join( ',', map{ '?' } @Columns )." ) ;";	
+	unless( InsertRecord( $dbh, $sql, \@rows ) ) {
+		return 0;
+	}
+
+	undef( %hrow);
+	$table='readtable';
+	@Columns=qw( number0 numcycles isindexedread read_id ) ;
+	$sql="INSERT into $table
+					( ". join(',', @Columns  ) ." )
+					values 
+					( ".join( ',', map{ '?' } @Columns )." ) ;";	
+					
+	# usualy field 'read' - is array, but in case one value, we make array from it
+	$tmp_root->{'Reads'}->{'Read'}=( $tmp_root->{'Reads'}->{'Read'} ) if( ref( $tmp_root->{'Reads'}->{'Read'} ) ne 'ARRAY' ); 
+	foreach $read ( @{ $tmp_root->{'Reads'}->{'Read'} } ) {
+		my %hrow;
+		my @rows;
+		$hrow{isindexedread}=$read->{'IsIndexedRead'} if( $read->{'IsIndexedRead'} =~ /^(Y|N)$/i ) ;	
+		$hrow{numcycles}=$read->{'NumCycles'}  if($read->{'NumCycles'}=~/^\d+$/ );;	
+		$hrow{number0}=$read->{'Number'} if($read->{'Number'}=~/^\d+$/ );;	
+		$hrow{read_id}=$read_id ;
+		foreach $key( @Columns ) {
+			push( @rows, $hrow{$key} );
+		}		
+		unless( InsertRecord( $dbh, $sql, \@rows ) ) {
+			return 0;
+		}				
+	}	
+	return 1;
+
+}
+
+
+sub parse_First_Base_Report ( $filename, $dbh, $runId )  {
+	my $filename=shift;
+	my $dbh=shift;
+	my $runId=shift;
+
+	my $html=ReadFile( $filename );
+	my $parser = HTML::TokeParser->new(\$html);
+
+my $result='';
+while (my $token = $parser->get_token) {
+	#print Dumper( $token );
+	$result .="$token->[1]#" if( $token->[0] =~'T');
+}  
+  	
+#print $result;
+$result=~/#Top Surface#\s+#\s+(.+\w#\s+)#\s+.+#Bottom Surface#\s#\s(.+\w#\s+)#\s+/sg;
+#print "\n\n$1\n\n$2";
+my @top=split( /\n/, $1 );
+my @bottom=split( /\n/, $2 );
+#print Dumper( @top );
+#print Dumper( @bottom );
+
+my %hrow;
+$hrow{top_id}=GetNextSequence( $dbh ) ;
+$hrow{bottom_id}=GetNextSequence( $dbh ) ;
+$hrow{run_id}=$runId ;
+
+my $top_id=$hrow{top_id};
+my $bottom_id=$hrow{bottom_id};
+
+	my @rows=();
+	my $table='first_base_report';
+	my @Columns=qw( top_id bottom_id run_id ) ;
+	foreach $key( @Columns ) {
+			push( @rows, $hrow{$key} );
+	}
+	
+	my $sql="INSERT into $table
+					( ". join(',', @Columns  ) ." )
+					values 
+					( ".join( ',', map{ '?' } @Columns )." ) ;";	
+	unless( InsertRecord( $dbh, $sql, \@rows ) ) {
+		return 0;
+	}
+
+	undef( %hrow);
+	
+unless( parse_surface ( $dbh, \@top, $top_id ) ) {
+	return 0;
+}
+
+unless( parse_surface ( $dbh, \@bottom, $bottom_id )) {
+	return 0;
+}
+
+	return 1;
+}
+
+
+sub parse_surface {
+	my $dbh=shift;
+	my $surface_array=shift;
+	my $surface_id=shift;
+	shift @{ $surface_array };
+	foreach my $line ( @{ $surface_array } ){
+		$line=~s/^#//;
+		$line=~s/#$//;
+		my @Fields=split( /#/, $line );
+		my @Columns=qw( metric lane1 lane2 lane3 lane4 lane5 lane6 lane7 lane8 surface_id id ) ;
+		my %hrow;
+$hrow{metric}=substr( @Fields[0] , 0, 45 ) ;
+$hrow{lane1}=@Fields[1] if( @Fields[1]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane2}=@Fields[2] if( @Fields[2]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane3}=@Fields[3] if( @Fields[3]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane4}=@Fields[4] if( @Fields[4]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane5}=@Fields[5] if( @Fields[5]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane6}=@Fields[6] if( @Fields[6]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane7}=@Fields[7] if( @Fields[7]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane8}=@Fields[8] if( @Fields[8]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane1}=@Fields[1] if( @Fields[1]=~/^\d*\.?\d*$/ ) ;
+$hrow{surface_id}=$surface_id;
+$hrow{id}=GetNextSequence( $dbh ) ;
+
+		my @rows=();
+		my $table='surface';
+		foreach $key( @Columns ) {
+			push( @rows, $hrow{$key} );
+		}
+	
+		my $sql="INSERT into $table
+					( ". join(',', @Columns  ) ." )
+					values 
+					( ".join( ',', map{ '?' } @Columns )." ) ;";	
+		unless( InsertRecord( $dbh, $sql, \@rows ) ) {
+			return 0;
+		}	
+	}
+}
+
+
+
+sub parse_runfolder {
+	my $dbh=shift;
+	my $new=shift;
+
+	my $globmask='^\d{6}_\w\d{5}_\d{4}_\w{10}$' ;
+
+	my $dir=$Paths->{RUNFOLDER};
+	my @ls;
+	unless( opendir(DIR, $dir) ) {
+		w2log( "can't opendir $dir: $!" );
+		return 0;
+	}
+		@ls=grep { /$globmask/ && -d "$dir/$_" } readdir(DIR) ;
+	closedir DIR;
+	
+# looking for new folders in RUNFOLDER
+
+	my $sql ="SELECT run_id from runfolder ;";
+	my $sth = $dbh->prepare( $sql );
+	my $rv;
+	unless ( $rv = $sth->execute(  ) || $rv < 0 ) {
+		w2log ( "Sql( $sql ) Someting wrong with database  : $DBI::errstr" );
+		return 0;
+	}
+	
+	my @RUN_IDs=();
+	my $hrow;
+	while ( $hrow=$sth->fetchrow_hashref ){
+		push( @RUN_IDs, $hrow->{run_id} ) ;
+	}
+
+# inser new folder name(run_id) into table 
+
+	my $table='runfolder';
+	my @Columns=qw( dt run_id );
+
+	foreach $id ( @ls ) {
+	
+		next if( grep{ /^$id$/ } @RUN_IDs ) ;
+		$sql="INSERT into $table
+					( ". join(',', @Columns  ) ." )
+					values 
+					( ".join( ',', map{ '?' } @Columns )." ) ;" ;	
+		my $row;
+		push( @{$row}, get_date( ) );
+		push( @{$row}, $id );
+	
+		InsertRecord( $dbh, $sql, $row ) ;
+		if( $new ) {
+			print "$id\n" ;
+		}					
+	}
+
+
+	unless( $new ) {
+		foreach( @ls ) {
+			print "$_\n";
+		}
+	}
+return 1;	
+}
+
+
+
+1;
+
+
