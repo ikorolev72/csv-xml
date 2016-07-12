@@ -34,7 +34,7 @@ exit ( 3 ) unless( $dbh );
 
 
 unless ( parse_SampleSheet ( $filename, $dbh ) ) { # if any errors we exit with 4 
-	db_disconnect();
+	db_disconnect( $dbh );
 	exit(4);
 }
 

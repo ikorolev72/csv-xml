@@ -9,7 +9,8 @@
 # can be used.
 
 use PARS16;
-use HTML::PullParser;
+#use HTML::PullParser;
+use HTML::TokeParser;
 
 GetOptions (
         'id|i=s' => \$runId,
@@ -27,11 +28,11 @@ unless( -f $filename ) {
 	exit(0); 
 }
 
-#my $dbh=db_connect( ) ;
-#exit ( 3 ) unless( $dbh );
+my $dbh=db_connect( ) ;
+exit ( 3 ) unless( $dbh );
 
 unless ( parse_First_Base_Report ( $filename, $dbh, $runId ) ) { # if any errors we exit with 4 
-	db_disconnect();
+	db_disconnect( $dbh );
 	exit(4);
 }
 
@@ -43,26 +44,100 @@ sub parse_First_Base_Report ( $filename, $dbh, $runId )  {
 	my $filename=shift;
 	my $dbh=shift;
 	my $runId=shift;
-	my $parser = HTML::PullParser->new(
-	file => $filename,
-    text => 'text',
-  );
+
+	my $html=ReadFile( $filename );
+	my $parser = HTML::TokeParser->new(\$html);
 
 my $result='';
-my $start_surface_section=0;
-while(my $t = $parser->get_token) {
-	print Dumper( $t );
-	$result .="%". $t->[0];
-}
+while (my $token = $parser->get_token) {
+	#print Dumper( $token );
+	$result .="$token->[1]#" if( $token->[0] =~'T');
+}  
+  	
+#print $result;
+$result=~/#Top Surface#\s+#\s+(.+\w#\s+)#\s+.+#Bottom Surface#\s#\s(.+\w#\s+)#\s+/sg;
+#print "\n\n$1\n\n$2";
+my @top=split( /\n/, $1 );
+my @bottom=split( /\n/, $2 );
+#print Dumper( @top );
+#print Dumper( @bottom );
+
+my %hrow;
+$hrow{top_id}=GetNextSequence( $dbh ) ;
+$hrow{bottom_id}=GetNextSequence( $dbh ) ;
+$hrow{run_id}=$runId ;
+
+my $top_id=$hrow{top_id};
+my $bottom_id=$hrow{bottom_id};
+
+	my @rows=();
+	my $table='first_base_report';
+	my @Columns=qw( top_id bottom_id run_id ) ;
+	foreach $key( @Columns ) {
+			push( @rows, $hrow{$key} );
+	}
 	
-print $result;
-$result=~/#Top Surface#\s+#\s+(.+)#\s+#\s+#\s+#Bottom Surface#\s#\s(.+)#\s+#\s#\s#/sg;
-print "\n\n$1\n\n$2";
+	my $sql="INSERT into $table
+					( ". join(',', @Columns  ) ." )
+					values 
+					( ".join( ',', map{ '?' } @Columns )." ) ;";	
+	unless( InsertRecord( $dbh, $sql, \@rows ) ) {
+		return 0;
+	}
+
+	undef( %hrow);
 	
+unless( parse_surface ( $dbh, \@top, $top_id ) ) {
+	return 0;
+}
+
+unless( parse_surface ( $dbh, \@bottom, $bottom_id )) {
+	return 0;
+}
+
+	return 1;
 }
 
 
+sub parse_surface {
+	my $dbh=shift;
+	my $top=shift;
+	my $surface_id=shift;
+	shift @{ $top };
+	foreach my $line ( @{ $top } ){
+		$line=~s/^#//;
+		$line=~s/#$//;
+		my @Fields=split( /#/, $line );
+		my @Columns=qw( metric lane1 lane2 lane3 lane4 lane5 lane6 lane7 lane8 surface_id id ) ;
+		my %hrow;
+$hrow{metric}=substr( @Fields[0] , 0, 45 ) ;
+$hrow{lane1}=@Fields[1] if( @Fields[1]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane2}=@Fields[2] if( @Fields[2]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane3}=@Fields[3] if( @Fields[3]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane4}=@Fields[4] if( @Fields[4]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane5}=@Fields[5] if( @Fields[5]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane6}=@Fields[6] if( @Fields[6]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane7}=@Fields[7] if( @Fields[7]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane8}=@Fields[8] if( @Fields[8]=~/^\d*\.?\d*$/ ) ;
+$hrow{lane1}=@Fields[1] if( @Fields[1]=~/^\d*\.?\d*$/ ) ;
+$hrow{surface_id}=$surface_id;
+$hrow{id}=GetNextSequence( $dbh ) ;
 
+		my @rows=();
+		my $table='surface';
+		foreach $key( @Columns ) {
+			push( @rows, $hrow{$key} );
+		}
+	
+		my $sql="INSERT into $table
+					( ". join(',', @Columns  ) ." )
+					values 
+					( ".join( ',', map{ '?' } @Columns )." ) ;";	
+		unless( InsertRecord( $dbh, $sql, \@rows ) ) {
+			return 0;
+		}	
+	}
+}
 
 sub show_help {
         print STDERR "

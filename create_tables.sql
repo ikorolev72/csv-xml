@@ -173,8 +173,9 @@ default character set = utf8;
 
 create table if not exists first_base_report (
   `run_id` varchar(45) not null,
-  `surface` varchar(45) not null,
-  `surface_id` integer not null,
+  `top_id` integer not null,
+  `bottom_id` integer not null,
+  primary key (`run_id`)  
   )
 default character set = utf8;
 
