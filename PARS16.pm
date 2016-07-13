@@ -4,7 +4,7 @@
 
 
 use DBI;
-#use Data::Dumper;
+use Data::Dumper;
 use Getopt::Long;
 use HTML::TokeParser;
 use XML::Simple qw(:strict);
@@ -687,8 +687,7 @@ $result=~/#Top Surface#\s+#\s+(.+\w#\s+)#\s+.+#Bottom Surface#\s#\s(.+\w#\s+)#\s
 #print "\n\n$1\n\n$2";
 my @top=split( /\n/, $1 );
 my @bottom=split( /\n/, $2 );
-#print Dumper( @top );
-#print Dumper( @bottom );
+
 
 my %hrow;
 $hrow{top_id}=GetNextSequence( $dbh ) ;
@@ -714,7 +713,6 @@ my $bottom_id=$hrow{bottom_id};
 	}
 
 	undef( %hrow);
-	
 unless( parse_surface ( $dbh, \@top, $top_id ) ) {
 	return 0;
 }
@@ -765,6 +763,7 @@ $hrow{id}=GetNextSequence( $dbh ) ;
 			return 0;
 		}	
 	}
+return 1;	
 }
 
 
