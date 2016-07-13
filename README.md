@@ -78,52 +78,53 @@ For start the task every day in 23-30
 
 
 
-## Depends beetwen file fields and database tables fields
+## How to select parsed data from tables
 ### RunFolder 
 Folder name in RunFolder is unique ID for  files of project.
 Folder name inserted into table `runfolder` as `run_id`.
-
 SQL sample: 
-`select * from runfolder where run_id='160221_D00427_0078_AHJ7M7BCXX';`
+```
+select * from runfolder where run_id='160221_D00427_0078_AHJ7M7BCXX';
+```
 
 ### runParameters.xml
 File runParameters.xml parsed into tables `runparameter` and  `readtable`.
 Unique key for `runparameter` is `run_id`, multiple records from xml  'Read' tag inserts into 
 table `readtable` and aviable with key `read_id`.
-
 SQL sample:
-```select a.run_id, a.computername, a.barcode, b.* from `runparameter` a, `readtable` b where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and a.read_id=b.read_id ;```
+```
+select a.run_id, a.computername, a.barcode, b.* from runparameter a, readtable b where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and a.read_id=b.read_id ;
+```
 
 ### RunInfo.xml
 File RunInfo.xml parsed into tables `runinfo` and  `readtable`.
 Unique key for `runparameter` is `run_id`, multiple records from xml  'Read' tag inserts into 
 table `readtable` and aviable with key `read_id`.
-
 SQL sample: 
-```select a.*, b.* from `runinfo` a, `readtable` b where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and a.read_id=b.read_id ;```
+```
+select a.*, b.* from runinfo a, readtable b where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and a.read_id=b.read_id ;
+```
+
 
 ### SampleSheet.csv
 File SampleSheet.csv parsed into table `samplesheet`.
 Any record from table can be selected by `run_id`, `sample_id` and `lane`.
-
-
 SQL sample: 
 ```
-select a.* from `samplesheet` a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' ;
-select a.* from `samplesheet` a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and sample_id=15;
-select a.* from `samplesheet` a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and sample_id=15 and lane=1 ;
+select a.* from samplesheet a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' ;
+select a.* from samplesheet a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and sample_id=15;
+select a.* from samplesheet a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and sample_id=15 and lane=1 ;
 ```
-
-
 
 
 ### First_Base_Report.htm
 File First_Base_Report.htm parsed into tables `first_base_report` and `surface`.
 Every record can be selected by run_id . 
-
 SQL sample: 
-`select 'Top Surface', a.*, b.* from `first_base_report` a, `surface` b  where a.run_id='160315_D00427_0082_AHKJ7FBCXX' and b.surface_id=a.top_id ;`
-`select 'Bottom Surface', a.*, b.* from `first_base_report` a, `surface` b  where a.run_id='160315_D00427_0082_AHKJ7FBCXX' and b.surface_id=a.bottom_id ;`
+```
+select 'Top Surface', a.*, b.* from first_base_report a, surface b  where a.run_id='160315_D00427_0082_AHKJ7FBCXX' and b.surface_id=a.top_id ;
+select 'Bottom Surface', a.*, b.* from first_base_report a, surface b  where a.run_id='160315_D00427_0082_AHKJ7FBCXX' and b.surface_id=a.bottom_id ;
+```
 
 
 
