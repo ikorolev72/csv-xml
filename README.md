@@ -67,8 +67,14 @@ There are several scripts:
 
 ## How to add cron tasks
 If you need start this script periodicly you need add next line in cron with `crontab -e`
-For start the task every Saturday in 23-30 `30	23	*	*	6	/opt/csv-xml/parser_all.pl > /dev/null 2>&1`
-For start the task every day in 23-30 `0	23	*	*	*	/opt/csv-xml/parser_all.pl > /dev/null 2>&1`
+For start the task every Saturday in 23-30 
+```
+30	23	*	*	6	/opt/csv-xml/parser_all.pl > /dev/null 2>&1
+```
+For start the task every day in 23-30 
+```
+30	23	*	*	*	/opt/csv-xml/parser_all.pl > /dev/null 2>&1
+```
 
 
 
@@ -85,17 +91,16 @@ File runParameters.xml parsed into tables `runparameter` and  `readtable`.
 Unique key for `runparameter` is `run_id`, multiple records from xml  'Read' tag inserts into 
 table `readtable` and aviable with key `read_id`.
 
-SQL sample: 
-`select a.run_id, a.computername, a.barcode, b.* from `runparameter` a, `readtable` b where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and a.read_id=b.read_id ;`
+SQL sample:
+```select a.run_id, a.computername, a.barcode, b.* from `runparameter` a, `readtable` b where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and a.read_id=b.read_id ;```
 
 ### RunInfo.xml
 File RunInfo.xml parsed into tables `runinfo` and  `readtable`.
 Unique key for `runparameter` is `run_id`, multiple records from xml  'Read' tag inserts into 
 table `readtable` and aviable with key `read_id`.
 
-
 SQL sample: 
-`select a.*, b.* from `runinfo` a, `readtable` b where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and a.read_id=b.read_id ;`
+```select a.*, b.* from `runinfo` a, `readtable` b where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and a.read_id=b.read_id ;```
 
 ### SampleSheet.csv
 File SampleSheet.csv parsed into table `samplesheet`.
@@ -103,9 +108,11 @@ Any record from table can be selected by `run_id`, `sample_id` and `lane`.
 
 
 SQL sample: 
-`select a.* from `samplesheet` a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' ;`
-`select a.* from `samplesheet` a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and sample_id=15;`
-`select a.* from `samplesheet` a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and sample_id=15 and lane=1 ;`
+```
+select a.* from `samplesheet` a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' ;
+select a.* from `samplesheet` a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and sample_id=15;
+select a.* from `samplesheet` a where a.run_id='160221_D00427_0078_AHJ7M7BCXX' and sample_id=15 and lane=1 ;
+```
 
 
 
