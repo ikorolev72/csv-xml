@@ -311,6 +311,20 @@ $hrow{scannerid}=substr( $tmp_root->{'ScannerID'}, 0, 45 ) ;
 $hrow{aligntophix}=substr( $tmp_root->{'AlignToPhiX'}, 0, 45 ) ;
 $hrow{scanid}=substr( $tmp_root->{'ScanID'}, 0, 45 ) ;
 $hrow{washbarcode}=substr( $tmp_root->{'WashBarcode'}, 0, 45 ) ;
+#
+# simple fix. sorry, use only first array element
+if( ref($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}) eq 'ARRAY' ) {
+$hrow{isnew200cycle}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'IsNew200Cycle'}=~/^true$/ );
+$hrow{isnew200cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'IsNew200Cycle'}=~/^false$/ );
+$hrow{id0}=substr( $tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'ID'}, 0, 45 ) ;
+$hrow{isnew50cycle}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'IsNew50Cycle'}=~/^true$/ );
+$hrow{isnew50cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'IsNew50Cycle'}=~/^false$/ );
+$hrow{numbercyclesremaining}=$tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'NumberCyclesRemaining'} if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'NumberCyclesRemaining'}=~/^\d+$/ );
+$hrow{prime}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'Prime'}=~/^true$/ );
+$hrow{prime}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'Prime'}=~/^false$/ );
+$hrow{isnew500cycle}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'IsNew500Cycle'}=~/^true$/ );
+$hrow{isnew500cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'IsNew500Cycle'}=~/^false$/ );
+} else {
 $hrow{isnew200cycle}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'IsNew200Cycle'}=~/^true$/ );
 $hrow{isnew200cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'IsNew200Cycle'}=~/^false$/ );
 $hrow{id0}=substr( $tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'ID'}, 0, 45 ) ;
@@ -321,6 +335,8 @@ $hrow{prime}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'Prim
 $hrow{prime}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'Prime'}=~/^false$/ );
 $hrow{isnew500cycle}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'IsNew500Cycle'}=~/^true$/ );
 $hrow{isnew500cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'IsNew500Cycle'}=~/^false$/ );
+}
+
 $hrow{rehyb1}=substr( $tmp_root->{'Rehyb'}, 0, 45 ) ;
 $hrow{pe1}=substr( $tmp_root->{'ReagentKits'}->{'Pe'}, 0, 45 ) ;
 $hrow{id1}=substr( $tmp_root->{'ReagentKits'}->{'ReagentKits'}->{'Index'}->{'ReagentKit'}->{'ID'}, 0, 45 ) ;
@@ -540,7 +556,8 @@ sub parse_SampleSheet {
 
 
 	my $fh;
-	unless( open(  $fh, "<:encoding(utf8)", $filename ) ) {
+#	unless( open(  $fh, "<:encoding(utf8)", $filename ) ) {
+	unless( open(  $fh, "<", $filename ) ) {
 		w2log( "$filename: $!" );
 		return 0;
 	}
@@ -570,7 +587,7 @@ sub parse_SampleSheet {
 	foreach $row ( @Rows ) {
 		my %hrow;
 $hrow{run_id}=$runId;
-$hrow{lane}=substr( $row->[0], 0, 45 ) ;
+$hrow{lane}=$row->[0] if( $row->[0] =~/^\d+$/ );
 $hrow{sample_id}=substr( $row->[1], 0, 45 ) ;
 $hrow{sample_name}=substr( $row->[2], 0, 45 ) ;
 $hrow{sample_plate}=substr( $row->[3], 0, 45 ) ;

@@ -7,7 +7,7 @@
 
 use PARS16;
 
-my @tables=qw( runinfo first_base_report runparameter  selecttable readtable runfolder samplesheet ) ;
+my @tables=qw( runinfo first_base_report runparameter  selecttable readtable runfolder samplesheet surface) ;
 
 my @ql=(
 'DELETE FROM runinfo;', 
