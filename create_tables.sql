@@ -2,10 +2,10 @@
 -- version 4.5.4.1deb2ubuntu2
 -- http://www.phpmyadmin.net
 --
--- Хост: localhost
--- Время создания: Июл 12 2016 г., 15:41
--- Версия сервера: 5.7.12-0ubuntu1.1
--- Версия PHP: 7.0.4-7ubuntu2.1
+-- Host: localhost
+-- Generation Time: Jul 15, 2016 at 02:39 PM
+-- Server version: 5.7.12-0ubuntu1.1
+-- PHP Version: 7.0.4-7ubuntu2.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,13 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- База данных: `unixpinc_NGS_LIMS`
+-- Database: `unixpinc_NGS_LIMS`
 --
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `first_base_report`
+-- Table structure for table `first_base_report`
 --
 
 CREATE TABLE `first_base_report` (
@@ -35,7 +35,7 @@ CREATE TABLE `first_base_report` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `readtable`
+-- Table structure for table `readtable`
 --
 
 CREATE TABLE `readtable` (
@@ -48,7 +48,7 @@ CREATE TABLE `readtable` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `runfolder`
+-- Table structure for table `runfolder`
 --
 
 CREATE TABLE `runfolder` (
@@ -59,7 +59,7 @@ CREATE TABLE `runfolder` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `runinfo`
+-- Table structure for table `runinfo`
 --
 
 CREATE TABLE `runinfo` (
@@ -78,7 +78,7 @@ CREATE TABLE `runinfo` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `runparameter`
+-- Table structure for table `runparameter`
 --
 
 CREATE TABLE `runparameter` (
@@ -196,7 +196,7 @@ CREATE TABLE `runparameter` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `samplesheet`
+-- Table structure for table `samplesheet`
 --
 
 CREATE TABLE `samplesheet` (
@@ -215,7 +215,7 @@ CREATE TABLE `samplesheet` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `selecttable`
+-- Table structure for table `selecttable`
 --
 
 CREATE TABLE `selecttable` (
@@ -226,7 +226,7 @@ CREATE TABLE `selecttable` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `sequ`
+-- Table structure for table `sequ`
 --
 
 CREATE TABLE `sequ` (
@@ -234,16 +234,16 @@ CREATE TABLE `sequ` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Дамп данных таблицы `sequ`
+-- Dumping data for table `sequ`
 --
 
 INSERT INTO `sequ` (`id`) VALUES
-(1);
+(210);
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `surface`
+-- Table structure for table `surface`
 --
 
 CREATE TABLE `surface` (
@@ -261,35 +261,35 @@ CREATE TABLE `surface` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Индексы сохранённых таблиц
+-- Indexes for dumped tables
 --
 
 --
--- Индексы таблицы `first_base_report`
+-- Indexes for table `first_base_report`
 --
 ALTER TABLE `first_base_report`
   ADD PRIMARY KEY (`run_id`);
 
 --
--- Индексы таблицы `runfolder`
+-- Indexes for table `runfolder`
 --
 ALTER TABLE `runfolder`
   ADD PRIMARY KEY (`run_id`);
 
 --
--- Индексы таблицы `runinfo`
+-- Indexes for table `runinfo`
 --
 ALTER TABLE `runinfo`
   ADD PRIMARY KEY (`run_id`);
 
 --
--- Индексы таблицы `runparameter`
+-- Indexes for table `runparameter`
 --
 ALTER TABLE `runparameter`
   ADD PRIMARY KEY (`run_id`);
 
 --
--- Индексы таблицы `surface`
+-- Indexes for table `surface`
 --
 ALTER TABLE `surface`
   ADD PRIMARY KEY (`id`);
