@@ -181,7 +181,7 @@ sub AppendFile {
 sub ReadXml{
         my $filename=shift;
         my $xml;
-        eval {  $xml=XMLin( $filename,  ForceArray=>0 , ForceContent =>0 , KeyAttr => 1, KeepRoot => 1 ) } ;
+        eval {  $xml=XMLin( $filename,  ForceArray=>0 , ForceContent =>0 , KeyAttr => 1, KeepRoot => 1, SuppressEmpty => '' ) } ;
                 if($@) {
                         w2log ( "XML file $filename error: $@" );
                         return( undef );
@@ -201,29 +201,28 @@ sub parse_runParameters {
 	my %hrow;
 	my @rows;
 
-# 
 $hrow{run_id}=$runId ;
-#$hrow{run_id}=substr( $tmp_root->{'RunID'}, 0, 45 ) ; 
-$hrow{recipefragmentversion}=substr( $tmp_root->{'RecipeFragmentVersion'}, 0, 45 ) ;
-$hrow{flowcell}=substr( $tmp_root->{'Flowcell'}, 0, 45 ) ;
-$hrow{remapqscores}=substr( $tmp_root->{'RemapQScores'}, 0, 45 ) ;
-$hrow{computername}=substr( $tmp_root->{'ComputerName'}, 0, 45 ) ;
-$hrow{sbs0}=substr( $tmp_root->{'Sbs'}, 0, 45 ) ;
+$hrow{run_id}=substr( $tmp_root->{'RunID'}, 0, 45 ) unless(ref( $tmp_root->{'RunID'} ));
+$hrow{recipefragmentversion}=substr( $tmp_root->{'RecipeFragmentVersion'}, 0, 45 ) unless(ref( $tmp_root->{'RecipeFragmentVersion'} ));
+$hrow{flowcell}=substr( $tmp_root->{'Flowcell'}, 0, 45 ) unless(ref( $tmp_root->{'Flowcell'} ));
+$hrow{remapqscores}=substr( $tmp_root->{'RemapQScores'}, 0, 45 ) unless(ref( $tmp_root->{'RemapQScores'} ));
+$hrow{computername}=substr( $tmp_root->{'ComputerName'}, 0, 45 ) unless(ref( $tmp_root->{'ComputerName'} ));
+$hrow{sbs0}=substr( $tmp_root->{'Sbs'}, 0, 45 ) unless(ref( $tmp_root->{'Sbs'} ));
 $hrow{performprerunfluidicscheck}=1 if($tmp_root->{'PerformPreRunFluidicsCheck'}=~/^true$/ );
 $hrow{performprerunfluidicscheck}=0 if($tmp_root->{'PerformPreRunFluidicsCheck'}=~/^false$/ );
-$hrow{experimentname}=substr( $tmp_root->{'ExperimentName'}, 0, 45 ) ;
+$hrow{experimentname}=substr( $tmp_root->{'ExperimentName'}, 0, 45 ) unless(ref( $tmp_root->{'ExperimentName'} ));
 $hrow{numtilesperswath}=$tmp_root->{'NumTilesPerSwath'} if($tmp_root->{'NumTilesPerSwath'}=~/^\d+$/ );
-$hrow{cpldversion}=substr( $tmp_root->{'CPLDVersion'}, 0, 45 ) ;
-$hrow{clusteringchoice}=substr( $tmp_root->{'ClusteringChoice'}, 0, 45 ) ;
+$hrow{cpldversion}=substr( $tmp_root->{'CPLDVersion'}, 0, 45 ) unless(ref( $tmp_root->{'CPLDVersion'} ));
+$hrow{clusteringchoice}=substr( $tmp_root->{'ClusteringChoice'}, 0, 45 ) unless(ref( $tmp_root->{'ClusteringChoice'} ));
 $hrow{resumecycle}=$tmp_root->{'ResumeCycle'} if($tmp_root->{'ResumeCycle'}=~/^\d+$/ );
 $hrow{mockrun}=1 if($tmp_root->{'MockRun'}=~/^true$/ );
 $hrow{mockrun}=0 if($tmp_root->{'MockRun'}=~/^false$/ );
-$hrow{periodicsave}=substr( $tmp_root->{'PeriodicSave'}, 0, 45 ) ;
-$hrow{areaperpixelmm2}=substr( $tmp_root->{'AreaPerPixelmm2'}, 0, 45 ) ;
-$hrow{swathscanmode}=substr( $tmp_root->{'SwathScanMode'}, 0, 45 ) ;
-$hrow{username0}=substr( $tmp_root->{'Username'}, 0, 45 ) ;
-$hrow{scannedbarcode}=substr( $tmp_root->{'ScannedBarcode'}, 0, 45 ) ;
-$hrow{tempfolder1}=substr( $tmp_root->{'TempFolder'}, 0, 254 ) ;
+$hrow{periodicsave}=substr( $tmp_root->{'PeriodicSave'}, 0, 45 ) unless(ref( $tmp_root->{'PeriodicSave'} ));
+$hrow{areaperpixelmm2}=substr( $tmp_root->{'AreaPerPixelmm2'}, 0, 45 ) unless(ref( $tmp_root->{'AreaPerPixelmm2'} ));
+$hrow{swathscanmode}=substr( $tmp_root->{'SwathScanMode'}, 0, 45 ) unless(ref( $tmp_root->{'SwathScanMode'} ));
+$hrow{username0}=substr( $tmp_root->{'Username'}, 0, 45 ) unless(ref( $tmp_root->{'Username'} ));
+$hrow{scannedbarcode}=substr( $tmp_root->{'ScannedBarcode'}, 0, 45 ) unless(ref( $tmp_root->{'ScannedBarcode'} ));
+$hrow{tempfolder1}=substr( $tmp_root->{'TempFolder'}, 0, 254 ) unless(ref( $tmp_root->{'TempFolder'} ));
 $hrow{read1}=$tmp_root->{'Read1'} if($tmp_root->{'Read1'}=~/^\d+$/ );
 $hrow{firstbaseconfirmation}=1 if($tmp_root->{'FirstBaseConfirmation'}=~/^true$/ );
 $hrow{firstbaseconfirmation}=0 if($tmp_root->{'FirstBaseConfirmation'}=~/^false$/ );
@@ -234,8 +233,8 @@ $hrow{compressbcls}=0 if($tmp_root->{'CompressBcls'}=~/^false$/ );
 $hrow{indexread2}=$tmp_root->{'IndexRead2'} if($tmp_root->{'IndexRead2'}=~/^\d+$/ );
 $hrow{promptforpereagents}=1 if($tmp_root->{'PromptForPeReagents'}=~/^true$/ );
 $hrow{promptforpereagents}=0 if($tmp_root->{'PromptForPeReagents'}=~/^false$/ );
-$hrow{samplesheet}=substr( $tmp_root->{'SampleSheet'}, 0, 254 ) ;
-$hrow{outputfolder}=substr( $tmp_root->{'OutputFolder'}, 0, 254 ) ;
+$hrow{samplesheet}=substr( $tmp_root->{'SampleSheet'}, 0, 254 ) unless(ref( $tmp_root->{'SampleSheet'} ));
+$hrow{outputfolder}=substr( $tmp_root->{'OutputFolder'}, 0, 254 ) unless(ref( $tmp_root->{'OutputFolder'} ));
 $hrow{motordelayframes}=$tmp_root->{'FPGADynamicFocusSettings'}->{'MotorDelayFrames'} if($tmp_root->{'FPGADynamicFocusSettings'}->{'MotorDelayFrames'}=~/^\d+$/ );
 $hrow{maxsubsequentzjumphalfum}=$tmp_root->{'FPGADynamicFocusSettings'}->{'MaxSubsequentZJumpHalfUm'} if($tmp_root->{'FPGADynamicFocusSettings'}->{'MaxSubsequentZJumpHalfUm'}=~/^\d+$/ );
 $hrow{maxinitialzjumphalfum}=$tmp_root->{'FPGADynamicFocusSettings'}->{'MaxInitialZJumpHalfUm'} if($tmp_root->{'FPGADynamicFocusSettings'}->{'MaxInitialZJumpHalfUm'}=~/^\d+$/ );
@@ -251,8 +250,8 @@ $hrow{cvgainposlocked}=$tmp_root->{'FPGADynamicFocusSettings'}->{'CVGainPosLocke
 $hrow{dithershift}=$tmp_root->{'FPGADynamicFocusSettings'}->{'DitherShift'} if($tmp_root->{'FPGADynamicFocusSettings'}->{'DitherShift'}=~/^\d+$/ );
 $hrow{softwarelaserlag}=$tmp_root->{'FPGADynamicFocusSettings'}->{'SoftwareLaserLag'} if($tmp_root->{'FPGADynamicFocusSettings'}->{'SoftwareLaserLag'}=~/^\d+$/ );
 $hrow{intensityceiling}=$tmp_root->{'FPGADynamicFocusSettings'}->{'IntensityCeiling'} if($tmp_root->{'FPGADynamicFocusSettings'}->{'IntensityCeiling'}=~/^\d+$/ );
-$hrow{index0}=substr( $tmp_root->{'Index'}, 0, 45 ) ;
-$hrow{applicationversion}=substr( $tmp_root->{'ApplicationVersion'}, 0, 45 ) ;
+$hrow{index0}=substr( $tmp_root->{'Index'}, 0, 45 ) unless(ref( $tmp_root->{'Index'} ));
+$hrow{applicationversion}=substr( $tmp_root->{'ApplicationVersion'}, 0, 45 ) unless(ref( $tmp_root->{'ApplicationVersion'} ));
 $hrow{indexread1}=$tmp_root->{'IndexRead1'} if($tmp_root->{'IndexRead1'}=~/^\d+$/ );
 $hrow{templatecyclecount}=$tmp_root->{'TemplateCycleCount'} if($tmp_root->{'TemplateCycleCount'}=~/^\d+$/ );
 $hrow{enablenotifications}=1 if($tmp_root->{'EnableNotifications'}=~/^true$/ );
@@ -260,29 +259,29 @@ $hrow{enablenotifications}=0 if($tmp_root->{'EnableNotifications'}=~/^false$/ );
 $hrow{numanalysisthreads}=$tmp_root->{'NumAnalysisThreads'} if($tmp_root->{'NumAnalysisThreads'}=~/^\d+$/ );
 $hrow{resume}=1 if($tmp_root->{'Resume'}=~/^true$/ );
 $hrow{resume}=0 if($tmp_root->{'Resume'}=~/^false$/ );
-$hrow{slideholder}=substr( $tmp_root->{'SlideHolder'}, 0, 45 ) ;
+$hrow{slideholder}=substr( $tmp_root->{'SlideHolder'}, 0, 45 ) unless(ref( $tmp_root->{'SlideHolder'} ));
 $hrow{pairendfc}=1 if($tmp_root->{'PairEndFC'}=~/^true$/ );
 $hrow{pairendfc}=0 if($tmp_root->{'PairEndFC'}=~/^false$/ );
-$hrow{runmode}=substr( $tmp_root->{'RunMode'}, 0, 45 ) ;
-$hrow{focuscamerafirmware}=substr( $tmp_root->{'FocusCameraFirmware'}, 0, 45 ) ;
-$hrow{integrationmode}=substr( $tmp_root->{'IntegrationMode'}, 0, 45 ) ;
-$hrow{cameradriver}=substr( $tmp_root->{'CameraDriver'}, 0, 45 ) ;
-$hrow{fcposition}=substr( $tmp_root->{'FCPosition'}, 0, 45 ) ;
-$hrow{selectedsurface}=substr( $tmp_root->{'SelectedSurface'}, 0, 45 ) ;
+$hrow{runmode}=substr( $tmp_root->{'RunMode'}, 0, 45 ) unless(ref( $tmp_root->{'RunMode'} ));
+$hrow{focuscamerafirmware}=substr( $tmp_root->{'FocusCameraFirmware'}, 0, 45 ) unless(ref( $tmp_root->{'FocusCameraFirmware'} ));
+$hrow{integrationmode}=substr( $tmp_root->{'IntegrationMode'}, 0, 45 ) unless(ref( $tmp_root->{'IntegrationMode'} ));
+$hrow{cameradriver}=substr( $tmp_root->{'CameraDriver'}, 0, 45 ) unless(ref( $tmp_root->{'CameraDriver'} ));
+$hrow{fcposition}=substr( $tmp_root->{'FCPosition'}, 0, 45 ) unless(ref( $tmp_root->{'FCPosition'} ));
+$hrow{selectedsurface}=substr( $tmp_root->{'SelectedSurface'}, 0, 45 ) unless(ref( $tmp_root->{'SelectedSurface'} ));
 $hrow{enablecameralogging}=1 if($tmp_root->{'EnableCameraLogging'}=~/^true$/ );
 $hrow{enablecameralogging}=0 if($tmp_root->{'EnableCameraLogging'}=~/^false$/ );
-$hrow{camerafirmware}=substr( $tmp_root->{'CameraFirmware'}, 0, 45 ) ;
-$hrow{rehyb0}=substr( $tmp_root->{'Rehyb'}, 0, 45 ) ;
+$hrow{camerafirmware}=substr( $tmp_root->{'CameraFirmware'}, 0, 45 ) unless(ref( $tmp_root->{'CameraFirmware'} ));
+$hrow{rehyb0}=substr( $tmp_root->{'Rehyb'}, 0, 45 ) unless(ref( $tmp_root->{'Rehyb'} ));
 $hrow{autotiltonce}=1 if($tmp_root->{'AutoTiltOnce'}=~/^true$/ );
 $hrow{autotiltonce}=0 if($tmp_root->{'AutoTiltOnce'}=~/^false$/ );
-$hrow{rapidrunchemistry}=substr( $tmp_root->{'RapidRunChemistry'}, 0, 45 ) ;
+$hrow{rapidrunchemistry}=substr( $tmp_root->{'RapidRunChemistry'}, 0, 45 ) unless(ref( $tmp_root->{'RapidRunChemistry'} ));
 $hrow{imageheight}=$tmp_root->{'ImageHeight'} if($tmp_root->{'ImageHeight'}=~/^\d+$/ );
-$hrow{chemistryversion}=substr( $tmp_root->{'ChemistryVersion'}, 0, 45 ) ;
+$hrow{chemistryversion}=substr( $tmp_root->{'ChemistryVersion'}, 0, 45 ) unless(ref( $tmp_root->{'ChemistryVersion'} ));
 $hrow{enableautocenter}=1 if($tmp_root->{'EnableAutoCenter'}=~/^true$/ );
 $hrow{enableautocenter}=0 if($tmp_root->{'EnableAutoCenter'}=~/^false$/ );
-$hrow{applicationname}=substr( $tmp_root->{'ApplicationName'}, 0, 45 ) ;
-$hrow{focusmethod}=substr( $tmp_root->{'FocusMethod'}, 0, 45 ) ;
-$hrow{rtaversion}=substr( $tmp_root->{'RTAVersion'}, 0, 45 ) ;
+$hrow{applicationname}=substr( $tmp_root->{'ApplicationName'}, 0, 45 ) unless(ref( $tmp_root->{'ApplicationName'} ));
+$hrow{focusmethod}=substr( $tmp_root->{'FocusMethod'}, 0, 45 ) unless(ref( $tmp_root->{'FocusMethod'} ));
+$hrow{rtaversion}=substr( $tmp_root->{'RTAVersion'}, 0, 45 ) unless(ref( $tmp_root->{'RTAVersion'} ));
 $hrow{scannumber}=$tmp_root->{'ScanNumber'} if($tmp_root->{'ScanNumber'}=~/^\d+$/ );
 $hrow{imagewidth}=$tmp_root->{'ImageWidth'} if($tmp_root->{'ImageWidth'}=~/^\d+$/ );
 $hrow{enablebasecalling}=1 if($tmp_root->{'EnableBasecalling'}=~/^true$/ );
@@ -292,31 +291,31 @@ $hrow{supportmultiplesurfacesinui}=0 if($tmp_root->{'SupportMultipleSurfacesInUI
 $hrow{enablelft}=1 if($tmp_root->{'EnableLft'}=~/^true$/ );
 $hrow{enablelft}=0 if($tmp_root->{'EnableLft'}=~/^false$/ );
 $hrow{runid1}=$tmp_root->{'BaseSpaceSettings'}->{'RunId'} if($tmp_root->{'BaseSpaceSettings'}->{'RunId'}=~/^\d+$/ );
-$hrow{username1}=substr( $tmp_root->{'BaseSpaceSettings'}->{'Username'}, 0, 45 ) ;
+$hrow{username1}=substr( $tmp_root->{'BaseSpaceSettings'}->{'Username'}, 0, 45 ) unless(ref( $tmp_root->{'BaseSpaceSettings'}->{'Username'} ));
 $hrow{runmonitoringonly}=1 if($tmp_root->{'BaseSpaceSettings'}->{'RunMonitoringOnly'}=~/^true$/ );
 $hrow{runmonitoringonly}=0 if($tmp_root->{'BaseSpaceSettings'}->{'RunMonitoringOnly'}=~/^false$/ );
 $hrow{sendinstrumenthealthtoilmn}=1 if($tmp_root->{'BaseSpaceSettings'}->{'SendInstrumentHealthToILMN'}=~/^true$/ );
 $hrow{sendinstrumenthealthtoilmn}=0 if($tmp_root->{'BaseSpaceSettings'}->{'SendInstrumentHealthToILMN'}=~/^false$/ );
-$hrow{tempfolder0}=substr( $tmp_root->{'BaseSpaceSettings'}->{'TempFolder'}, 0, 254 ) ;
+$hrow{tempfolder0}=substr( $tmp_root->{'BaseSpaceSettings'}->{'TempFolder'}, 0, 254 ) unless(ref( $tmp_root->{'BaseSpaceSettings'}->{'TempFolder'} ));
 $hrow{plannedrun}=1 if($tmp_root->{'BaseSpaceSettings'}->{'PlannedRun'}=~/^true$/ );
 $hrow{plannedrun}=0 if($tmp_root->{'BaseSpaceSettings'}->{'PlannedRun'}=~/^false$/ );
-$hrow{workflowtype}=substr( $tmp_root->{'WorkFlowType'}, 0, 45 ) ;
-$hrow{barcode}=substr( $tmp_root->{'Barcode'}, 0, 45 ) ;
+$hrow{workflowtype}=substr( $tmp_root->{'WorkFlowType'}, 0, 45 ) unless(ref( $tmp_root->{'WorkFlowType'} ));
+$hrow{barcode}=substr( $tmp_root->{'Barcode'}, 0, 45 ) unless(ref( $tmp_root->{'Barcode'} ));
 $hrow{tileheight}=$tmp_root->{'TileHeight'} if($tmp_root->{'TileHeight'}=~/^\d+$/ );
-$hrow{fpgaversion}=substr( $tmp_root->{'FPGAVersion'}, 0, 45 ) ;
-$hrow{adapterplate}=substr( $tmp_root->{'AdapterPlate'}, 0, 45 ) ;
-$hrow{pe0}=substr( $tmp_root->{'Pe'}, 0, 45 ) ;
+$hrow{fpgaversion}=substr( $tmp_root->{'FPGAVersion'}, 0, 45 ) unless(ref( $tmp_root->{'FPGAVersion'} ));
+$hrow{adapterplate}=substr( $tmp_root->{'AdapterPlate'}, 0, 45 ) unless(ref( $tmp_root->{'AdapterPlate'} ));
+$hrow{pe0}=substr( $tmp_root->{'Pe'}, 0, 45 ) unless(ref( $tmp_root->{'Pe'} ));
 $hrow{numswaths}=$tmp_root->{'NumSwaths'} if($tmp_root->{'NumSwaths'}=~/^\d+$/ );
-$hrow{scannerid}=substr( $tmp_root->{'ScannerID'}, 0, 45 ) ;
-$hrow{aligntophix}=substr( $tmp_root->{'AlignToPhiX'}, 0, 45 ) ;
-$hrow{scanid}=substr( $tmp_root->{'ScanID'}, 0, 45 ) ;
-$hrow{washbarcode}=substr( $tmp_root->{'WashBarcode'}, 0, 45 ) ;
+$hrow{scannerid}=substr( $tmp_root->{'ScannerID'}, 0, 45 ) unless(ref( $tmp_root->{'ScannerID'} ));
+$hrow{aligntophix}=substr( $tmp_root->{'AlignToPhiX'}, 0, 45 ) unless(ref( $tmp_root->{'AlignToPhiX'} ));
+$hrow{scanid}=substr( $tmp_root->{'ScanID'}, 0, 45 ) unless(ref( $tmp_root->{'ScanID'} ));
+$hrow{washbarcode}=substr( $tmp_root->{'WashBarcode'}, 0, 45 ) unless(ref( $tmp_root->{'WashBarcode'} ));
 #
 # simple fix. sorry, use only first array element
 if( ref($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}) eq 'ARRAY' ) {
 $hrow{isnew200cycle}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'IsNew200Cycle'}=~/^true$/ );
 $hrow{isnew200cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'IsNew200Cycle'}=~/^false$/ );
-$hrow{id0}=substr( $tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'ID'}, 0, 45 ) ;
+$hrow{id0}=substr( $tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'ID'}, 0, 45 ) unless(ref( $tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'ID'} ));
 $hrow{isnew50cycle}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'IsNew50Cycle'}=~/^true$/ );
 $hrow{isnew50cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'IsNew50Cycle'}=~/^false$/ );
 $hrow{numbercyclesremaining}=$tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'NumberCyclesRemaining'} if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->[0]->{'NumberCyclesRemaining'}=~/^\d+$/ );
@@ -327,7 +326,7 @@ $hrow{isnew500cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}
 } else {
 $hrow{isnew200cycle}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'IsNew200Cycle'}=~/^true$/ );
 $hrow{isnew200cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'IsNew200Cycle'}=~/^false$/ );
-$hrow{id0}=substr( $tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'ID'}, 0, 45 ) ;
+$hrow{id0}=substr( $tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'ID'}, 0, 45 ) unless(ref( $tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'ID'} ));
 $hrow{isnew50cycle}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'IsNew50Cycle'}=~/^true$/ );
 $hrow{isnew50cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'IsNew50Cycle'}=~/^false$/ );
 $hrow{numbercyclesremaining}=$tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'NumberCyclesRemaining'} if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'NumberCyclesRemaining'}=~/^\d+$/ );
@@ -337,13 +336,13 @@ $hrow{isnew500cycle}=1 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}
 $hrow{isnew500cycle}=0 if($tmp_root->{'ReagentKits'}->{'Sbs'}->{'SbsReagentKit'}->{'IsNew500Cycle'}=~/^false$/ );
 }
 
-$hrow{rehyb1}=substr( $tmp_root->{'Rehyb'}, 0, 45 ) ;
-$hrow{pe1}=substr( $tmp_root->{'ReagentKits'}->{'Pe'}, 0, 45 ) ;
-$hrow{id1}=substr( $tmp_root->{'ReagentKits'}->{'ReagentKits'}->{'Index'}->{'ReagentKit'}->{'ID'}, 0, 45 ) ;
+$hrow{rehyb1}=substr( $tmp_root->{'Rehyb'}, 0, 45 ) unless(ref( $tmp_root->{'Rehyb'} ));
+$hrow{pe1}=substr( $tmp_root->{'ReagentKits'}->{'Pe'}, 0, 45 ) unless(ref( $tmp_root->{'ReagentKits'}->{'Pe'} ));
+$hrow{id1}=substr( $tmp_root->{'ReagentKits'}->{'ReagentKits'}->{'Index'}->{'ReagentKit'}->{'ID'}, 0, 45 ) unless(ref( $tmp_root->{'ReagentKits'}->{'ReagentKits'}->{'Index'}->{'ReagentKit'}->{'ID'} ));
 $hrow{keepintensityfiles}=1 if($tmp_root->{'KeepIntensityFiles'}=~/^true$/ );
 $hrow{keepintensityfiles}=0 if($tmp_root->{'KeepIntensityFiles'}=~/^false$/ );
 $hrow{tilewidth}=$tmp_root->{'TileWidth'} if($tmp_root->{'TileWidth'}=~/^\d+$/ );
-$hrow{sbs1}=substr( $tmp_root->{'ReagentBottles'}->{'Sbs'}, 0, 45 ) ;
+$hrow{sbs1}=substr( $tmp_root->{'ReagentBottles'}->{'Sbs'}, 0, 45 ) unless(ref( $tmp_root->{'ReagentBottles'}->{'Sbs'} ));
 $hrow{useexistingrecipe}=1 if($tmp_root->{'UseExistingRecipe'}=~/^true$/ );
 $hrow{useexistingrecipe}=0 if($tmp_root->{'UseExistingRecipe'}=~/^false$/ );
 $hrow{runstartdate}=$tmp_root->{'RunStartDate'} if($tmp_root->{'RunStartDate'}=~/^\d+$/ );
@@ -353,6 +352,7 @@ $hrow{lanelength}=$tmp_root->{'LaneLength'} if($tmp_root->{'LaneLength'}=~/^\d+$
 $hrow{read2}=$tmp_root->{'Read2'} if($tmp_root->{'Read2'}=~/^\d+$/ );
 $hrow{read_id}=GetNextSequence( $dbh ) ;
 $hrow{select_id}=GetNextSequence( $dbh ) ;
+
 
 my $read_id=$hrow{read_id};
 my $select_id=$hrow{select_id};

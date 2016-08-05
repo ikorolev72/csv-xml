@@ -12,11 +12,11 @@ Files found in dirs with mask `^\d{6}_\w\d{5}_\d{4}_\w{10}$` ( For example `1602
 
 ##  The Latest Version
 
-	version 1.0 2016.07.12
+	version 1.1 2016.08.05
 	
 ##  Whats new
 
-	First release
+Fixed hash value in table runparameters with nonexisting strings.
 	
 
 ##  Installation
@@ -124,6 +124,7 @@ SQL sample:
 ```
 select 'Top Surface', a.*, b.* from first_base_report a, surface b  where a.run_id='160315_D00427_0082_AHKJ7FBCXX' and b.surface_id=a.top_id ;
 select 'Bottom Surface', a.*, b.* from first_base_report a, surface b  where a.run_id='160315_D00427_0082_AHKJ7FBCXX' and b.surface_id=a.bottom_id ;
+select a.*, b.* from first_base_report a, surface b where a.run_id='160617_D00427_0099_BC8TF3ANXX' and b.surface_id=a.top_id or b.surface_id=a.bottom_id 
 ```
 
 
